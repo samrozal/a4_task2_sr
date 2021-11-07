@@ -1,0 +1,90 @@
+---
+title: "esm206_a4_task2"
+author: "Sam Rozal"
+date: "11/6/2021"
+output: html_document
+---
+
+```{r setup, include=TRUE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#attatch packages 
+library(tidyverse)
+library(here)
+library(janitor)
+library(lubridate)
+```
+
+```{r}
+#read in the data 
+hares <- read_csv(here("data", "bonanza_hares.csv"))
+```
+
+# 1. Introduction 
+words and stuff 
+
+```{r}
+hares_date <- hares %>% #create new df froma hares
+  mutate(date_new = mdy(date)) %>% #use lubridate to create new colum with code-friendly data
+  mutate(year = year(date_new)) #create year column using year() function 
+```
+
+```{r}
+juvenile_hares_date <-hares_date %>% #create new data frame from hares_date
+  filter(age == "j") #filter for just juvinile hares
+```
+
+
+```{r}
+hares_summary <- juvenile_hares_date %>%  #create new df from hares_date
+  group_by(year) %>% # group by year
+  summarize(count=n()) #get count totals 
+hares_summary
+```
+
+```{r}
+ggplot(data=hares_summary, aes(x=year, y=count)) +
+  geom_col(fill="purple")+ #create graph using geom_col
+  theme_classic() +
+  scale_x_continuous(breaks= seq(from=1998, to=2012, by=1)) + #makes it so that all years are shown 
+  labs(x= "Year",
+       y= "Juvenile Hare Count (n)", 
+       title = "Number of Juvenile Hares by Year") #add labels
+  
+```
+Figure 1. ____add captions later___
+
+```{r}
+hares_summary_statistics <- hares_summary %>% 
+  summarize(median= median(count),
+            mean= mean(count))
+
+hares_summary_statistics
+```
+
+
+# Visualize juvinile hare weights 
+
+```{r}
+juvenile_hares_mean_weight <- juvenile_hares_date %>% 
+  group_by(sex,grid) %>% 
+  summarize(mean_weight= mean(weight, na.rm=TRUE))
+juvenile_hares_select
+```
+
+```{r}
+ggplot(data=juvenile_hares_mean_weight, aes(x=grid, y=mean_weight, fill=sex)) +
+  geom_col(position="dodge") 
+```
+
+```{r}
+ggplot(data=juvenile_hares_date, aes(x=grid, y=weight))+
+  geom_point() +
+  facet_wrap(~sex)
+```
+
+```{r}
+ggplot(data=juvenile_hares_date, aes(x=sex, y=weight))+
+  geom_boxplot(aes(fill=sex)) +
+  facet_wrap(~grid)
+```
+
