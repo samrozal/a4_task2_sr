@@ -12,6 +12,7 @@ library(tidyverse)
 library(here)
 library(janitor)
 library(lubridate)
+library(effsize)
 ```
 
 ```{r}
@@ -86,5 +87,70 @@ ggplot(data=juvenile_hares_date, aes(x=grid, y=weight))+
 ggplot(data=juvenile_hares_date, aes(x=sex, y=weight))+
   geom_boxplot(aes(fill=sex)) +
   facet_wrap(~grid)
+```
+# Juvenile Weight comparison (male and female snowshoe Hares)
+
+```{r}
+juvenile_hares_weight <- juvenile_hares_date %>% #create a new data frame
+  group_by(sex) %>%  #group by sex
+  summarize(mean_hare_weight= round(mean(weight,na.rm=TRUE), 2),
+            sd_hare_weight= round(sd(weight, na.rm=TRUE), 2), 
+            hare_sample_size= n())#generate summary statistics
+juvenile_hares_weight# return df
+
+```
+
+```{r}
+#find difference of means
+juvenile_hares_weight$mean_hare_weight[2] - juvenile_hares_weight$mean_hare_weight[1]
+
+```
+
+
+```{r}
+ggplot(data=juvenile_hares_date, aes(sample=weight)) +
+  geom_qq()+
+  geom_qq_line()
+```
+```{r}
+ggplot(data=juvenile_hares_date, aes(x=weight)) + #load data into ggplot
+  geom_histogram()+ #create histogram
+  facet_wrap(~sex) #wrap by sex
+```
+
+```{r}
+#create a vector with just female juvenile hares from the juvenile_hares_date df
+juvenile_hares_female <- juvenile_hares_date %>% 
+  filter(sex=="f", weight != "NA") %>%
+  pull(weight)
+
+#create a vector with just male juvenile hares from the juvenile_hares_date df
+juvenile_hares_male <- juvenile_hares_date %>% 
+  filter(sex=="m", weight !="NA") %>% 
+  pull(weight)
+  
+```
+
+
+```{r}
+juvenile_hares_t <- t.test(juvenile_hares_female,juvenile_hares_male) #run t.test
+juvenile_hares_t #return t.test results
+```
+
+```{r}
+juvenile_hares_cohens <- cohen.d(juvenile_hares_female,juvenile_hares_male)
+juvenile_hares_cohens
+```
+
+
+# Relationship Between juvenile weight and hind foot length
+
+```{r}
+ggplot(data=juvenile_hares_date, aes(x=hindft, y=weight))+
+  geom_point() +
+  theme_classic() +
+  labs(x= "Hind Foot Length (mm)",
+       y= "Weight (g)", 
+       title= "Juvenile Hare Hind Foot Length vs. Weight")
 ```
 
