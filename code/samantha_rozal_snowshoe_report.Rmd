@@ -1,5 +1,5 @@
 ---
-title: "esm206_a4_task2"
+title: "Snowshoe Hares Report (ROZAL)"
 author: "Sam Rozal"
 date: "11/6/2021"
 output: html_document
@@ -23,10 +23,10 @@ hares <- read_csv(here("data", "bonanza_hares.csv"))
 ```
 
 # 1. Introduction
-This report provides an exploratory overview into differences in weights of juvenile snowshoe hares observed at the Bonanza Creek Long Term Ecological Research site (a portion of the US Long Term Ecological Research Network) between the years of 1998 and 2012. Specifically, I analyze the differences in juvenile snowshoe hare weights between sexes (male and female) and experimental sites (Bonanza Riparian, Bonanza Mature, and Bonanza Black Spruce). We also frther explore the relationship between juvenile hare weight and juvenile hare hind foot length. 
+This report provides an exploratory overview into differences in weights of juvenile snowshoe hares observed at the Bonanza Creek Long Term Ecological Research site (a portion of the US Long Term Ecological Research Network) between the years of 1998 and 2012. Specifically, I analyze the differences in juvenile snowshoe hare weights between sexes (male and female) and experimental sites (Bonanza Riparian, Bonanza Mature, and Bonanza Black Spruce). We also farther explore the relationship between juvenile hare weight and juvenile hare hind foot length by building a simple linear regression model is built to explore this relationship 
 
 # 2. Data and Methods
-Measurements pertaining to snowshoe hare sizes were collected by Dr. Knut Kielland, Dr. Staurt Chapin, Dr. Roger Russ, and their team between the years of 1998 and 2012 in the Bonanza Creek Experimental Forest in Alaska, USA. The data covers 5 sites in which snowshoe hares were captured in traps, measured, and then released back into the the ecological reserve. Of these 5 sites, three of them are explored further in this report, as this report focuses on Juvenile snowshoe hares. Exploratory data visualization is first conducted in order to_____. Folowing this initial exploration, the difference between male and female weights is analysed using a Welch two-sample t-test, with a significance level of 0.05. The effect size is determined to further support ______. Furthermore, a simple linear regression model is built to explore the relationship between juvenile snowshoe hare weight and juvenile snowshoe hare hindfoot length. 
+Measurements pertaining to snowshoe hare sizes were collected by Dr. Knut Kielland, Dr. Staurt Chapin, Dr. Roger Russ, and their team between the years of 1998 and 2012 in the Bonanza Creek Experimental Forest in Alaska, USA. The data covers 5 sites (three of which are explored further in this report, as this report focuses on Juvenile snowshoe hares) where snowshoe hares were captured in traps, measured, and then released back into the the ecological reserve.Exploratory data visualization is first conducted in order to_____. Folowing this initial exploration, the difference between male and female weights is analysed using a Welch two-sample t-test, with a significance level of 0.05,the effect size of the model is found, and a linear regression model exploring weight and hind foot lengthis constructed.
 
 ```{r}
 #Data organization 
@@ -210,7 +210,7 @@ plot(juvenile_hares_lm) # based on the qq plot, the residual distribution seems 
 ```{r}
 ggplot(data=juvenile_hares_date, aes(x=hindft, y=weight))+
   geom_point() +
-  theme_minimal() +
+  theme_classic() +
   labs(x= "Hind Foot Length (mm)",
        y= "Weight (g)", 
        title= "Juvenile Hare Hind Foot Length vs. Weight") +
