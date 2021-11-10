@@ -22,10 +22,10 @@ library(ggbeeswarm)
 hares <- read_csv(here("data", "bonanza_hares.csv"))
 ```
 
-# 1. Overview 
+# 1. Introduction
 This report provides an exploratory overview into differences in weights of juvenile snowshoe hares observed at the Bonanza Creek Long Term Ecological Research site (a portion of the US Long Term Ecological Research Network) between the years of 1998 and 2012. Specifically, I analyze the differences in juvenile snowshoe hare weights between sexes (male and female) and experimental sites (Bonanza Riparian, Bonanza Mature, and Bonanza Black Spruce). We also frther explore the relationship between juvenile hare weight and juvenile hare hind foot length. 
 
-#2 Data and Methods
+# 2. Data and Methods
 Measurements pertaining to snowshoe hare sizes were collected by Dr. Knut Kielland, Dr. Staurt Chapin, Dr. Roger Russ, and their team between the years of 1998 and 2012 in the Bonanza Creek Experimental Forest in Alaska, USA. The data covers 5 sites in which snowshoe hares were captured in traps, measured, and then released back into the the ecological reserve. Of these 5 sites, three of them are explored further in this report, as this report focuses on Juvenile snowshoe hares. Exploratory data visualization is first conducted in order to_____. Folowing this initial exploration, the difference between male and female weights is analysed using a Welch two-sample t-test, with a significance level of 0.05. The effect size is determined to further support ______. Furthermore, a simple linear regression model is built to explore the relationship between juvenile snowshoe hare weight and juvenile snowshoe hare hindfoot length. 
 
 ```{r}
@@ -111,11 +111,12 @@ ggplot(data=juvenile_hares_date, aes(x=sex_full, y=weight))+
                size=2)
        
 ```
-Figure.2 *Juvenile Hare Weight by sex (male, female, or unidentified) and site trapped (Bonanza Black Spruce, Bonanza Mature, or Bonanza Riparian)* Pink, blue, and grey points represent individual trapped hare observations of female, male, and sex unidentified respectively. The solid black line within in the boxpolot represents the median number of hares trapped and the endpoints of the boxplot are representative of the 25th and 75th percentile. Average(mean) values of trapped hares are represented by black diamonds and outliers are represented by red points. Data:Kielland et al. (2017)
+
+**Figure.2 Juvenile Hare Weight by sex (male, female, or unidentified) and site trapped (Bonanza Black Spruce, Bonanza Mature, or Bonanza Riparian)** Pink, blue, and grey points represent individual trapped hare observations of female, male, and sex unidentified respectively. The solid black line within in the boxpolot represents the median number of hares trapped and the endpoints of the boxplot are representative of the 25th and 75th percentile. Average(mean) values of trapped hares are represented by black diamonds and outliers are represented by red points. Data: Kielland et al. (2017)
 
 On averge, across all three sites, male juvenile snowshoe hares were larger than that of female juvenile snowshoe hares. In comparing the size of the shares across the three sites, hares that were trapped at the Bonanza Black Spruce site were largest. We see the greatest distribution of sizes among male hares that wer trapped at the Bonanza Riparian site.
 
-# Juvenile Weight comparison (male and female snowshoe Hares)
+## C.Comparison of Weights between Female and Male Snowshoe Hares
 
 ```{r}
 juvenile_hares_weight <- juvenile_hares_date %>% #create a new data frame
@@ -133,10 +134,7 @@ kable(juvenile_hares_weight, col.names= c("Sex",
                                           "Sample Size (n)"), caption= "Table 1. Summary Statistics for Female, Male, and N/A Hares. Table includes mean, standard deviation, and sample size for Juvenile Hares of all sexes found at three diffent sites (Bonanza Riparian, Bonzana Mature, and Bonaza Black spruce) between the yeasr of 1998 and 2012") %>% 
   kable_styling()
 ```
-```{r}
-#find difference of means
-juvenile_hares_weight$mean_hare_weight[2] - juvenile_hares_weight$mean_hare_weight[1]
-```
+
 ```{r}
 #Setting up for a potential T-test:
 #create a vector with just female juvenile hares from the juvenile_hares_date df
@@ -162,7 +160,6 @@ qqnorm(juvenile_hares_male)# mostly linear, but there is a slight s curve
 ```{r}
 # run the t.test:
 juvenile_hares_t <- t.test(juvenile_hares_female,juvenile_hares_male) 
-juvenile_hares_t
 ```
 ```{r}
 #pull model summary of the data frame so that I can call the outputs for in line referencing 
@@ -180,9 +177,35 @@ male_hares_mean <- mean(juvenile_hares_male)
 male_hares_sd <- sd(juvenile_hares_male)
 ```
 
-Our analysis indicates that male juvenile snowshoe hares have a larger average weight compared to that of the average weight of female juvenile snowshoe hares (`r round(male_hares_mean, 2)` $\pm$ `r round(male_hares_sd, 2)` and `r round(female_hares_mean, 2)` $\pm$ `r round(female_hares_sd, 2)` respectively, reported as mean $\pm$ 1 standard deviation). The absolute difference in means between females and males is `r round(male_hares_mean, 2) -  round(female_hares_mean, 2)` grams, which is a `r round((male_hares_mean - female_hares_mean)/((male_hares_mean + female_hares_mean)/2)*100, 2)` percent difference. Exploratory qq plots and histograms indicated a normal distribution of residuals and data respectively, so a two sided t-test was warranted to assess the significance of this difference. The difference between these means is significant (t(`r round(juvenile_hares_t_tidy$parameter, 2)`) = `r round(juvenile_hares_t_tidy$statistic, 2)`, p=`r juvenile_hares_t_tidy$p.value[1]`). Because this p value is less than 0.05, we reject the null hypothesis that_____. This is corroborated by a small effects size (Cohen's *d* =`r round(juvenile_hares_cohens$estimate, 2)`) which indicates that ________.   
+Our analysis indicates that male juvenile snowshoe hares have a larger average weight compared to that of the average weight of female juvenile snowshoe hares (`r round(male_hares_mean, 2)` $\pm$ `r round(male_hares_sd, 2)` and `r round(female_hares_mean, 2)` $\pm$ `r round(female_hares_sd, 2)` respectively, reported as mean $\pm$ 1 standard deviation). The absolute difference in means between females and males is `r round(male_hares_mean, 2) -  round(female_hares_mean, 2)` grams, which is a `r round((male_hares_mean - female_hares_mean)/((male_hares_mean + female_hares_mean)/2)*100, 2)` percent difference. Exploratory qq plots and histograms indicated a normal distribution of residuals and data respectively, so a two sided t-test was warranted to assess the significance of this difference. The difference between these means is significant (t(`r round(juvenile_hares_t_tidy$parameter, 2)`) = `r round(juvenile_hares_t_tidy$statistic, 2)`, p=`r juvenile_hares_t_tidy$p.value[1]`). This indicated that if drawing from populations with the same average value, there is a 0.71% chance that difference in mean values between female and male juvenile hares is a result of random error, which means that we can reject the null hypothesis that the true difference in means is not equal to zero.  This is corroborated by a small effects size (Cohen's *d* =`r round(juvenile_hares_cohens$estimate, 2)`) which indicates that ________. Data: Kielland et al. (2017)
 
-# Relationship Between juvenile weight and hind foot length
+## D. Relationship Between Weight and Hind Foot Length
+We analyzed the relationship between juvenile hare weight (grams) and hind foot length (mm) across all juvenile hares observed during the study period. Although the relationship provides valuable insight , there is a necessity for further analysis that also includes sex of the juvenile hare and the site at which the hares were observed/trapped as variables, as these are likely to also have an impact on rabbit weight.
+```{r}
+#perform an linear regression analysis
+juvenile_hares_lm <- lm(weight ~ hindft, data=juvenile_hares_date) #stored linear model as juvenile_hares_lm
+
+#return tidy version of the model with the coefficient summary so that I can use it for in-line referencing later on.
+juvenile_hares_lm_tidy <- broom::tidy(juvenile_hares_lm)
+
+```
+
+```{r}
+#return the model summary to use for in line referencing 
+juvenile_hares_lm_glance <- broom::glance(juvenile_hares_lm)
+```
+```{r}
+#Code for Pearson's r correlation 
+juvenile_hare_cor <- cor.test(juvenile_hares_date$hindft, juvenile_hares_date$weight)
+
+#get tidy version of the correlation for use later on with in line referncing 
+juvenile_hares_cor_tidy <- broom::tidy(juvenile_hare_cor)
+```
+```{r, include=FALSE}
+#Call model diagnostics to check for normality 
+plot(juvenile_hares_lm) # based on the qq plot, the residual distribution seems normal. The residuals, however, are not homoscedastic
+```
+
 
 ```{r}
 ggplot(data=juvenile_hares_date, aes(x=hindft, y=weight))+
@@ -196,45 +219,8 @@ ggplot(data=juvenile_hares_date, aes(x=hindft, y=weight))+
   geom_smooth(method="lm", linetype= "dashed")
 ```
 
-```{r}
-#perform an linear regression analysis
-juvenile_hares_lm <- lm(weight ~ hindft, data=juvenile_hares_date) #stored linear model as juvenile_hares_lm
+**Figure 3. Relationship between juvenile snowshoe hare weight and hind foot length** Individual observations are represented by points on the graph. The regression model is indicated by the dashed blue line which folows the equation: weight = `r round(juvenile_hares_lm_tidy$estimate[2], 2)`g mm ^-1^ * (hind foot length) + `r round(juvenile_hares_lm_tidy$estimate[1], 2)`g (p=`r round(juvenile_hares_lm_tidy$p.value[1], 2)`, R^2^ = `r round(juvenile_hares_lm_glance$r.squared[1], 3)` Pearson's *r* =`r round(juvenile_hares_cor_tidy$estimate,2)`) Data: Kielland et al. (2017)
 
-summary(juvenile_hares_lm) #return the complete overview
+There is a significant linear relationship in which juvenile hare weight can be predicted by hare juvenile hind foot length (p=`r round(juvenile_hares_lm_tidy$p.value[1], 2)`, R^2^ =`r round(juvenile_hares_lm_glance$r.squared[1], 3)`). The slope value of $\beta$ = `r round(juvenile_hares_lm_tidy$estimate[2], 2)` mm/g  indicates a predicted increase of `r round(juvenile_hares_lm_tidy$estimate[2], 2)` g in juvenile snowshoe hare weight for a 1 millimeter increase in hind foot length and there is a medium, positive, significant correlation between juvenile snowshoe hare hind foot length and weight (Pearson's *r* = `r round(juvenile_hares_cor_tidy$estimate,2)`, p= `r (juvenile_hares_cor_tidy$p.value)`). Undisplayed diagnostic plots indicate that the distribution of the residual is hetroscedastic and non-normal, which indicates that a linear model may not be the best fit.  
 
-#return tidy version of the model with the coefficient summary so that I can use it for in-line referencing later on.
-juvenile_hares_lm_tidy <- broom::tidy(juvenile_hares_lm)
-juvenile_hares_lm_tidy 
 
-```
-
-```{r}
-#return the model summary to use for in line referencing 
-juvenile_hares_lm_glance <- broom::glance(juvenile_hares_lm)
-juvenile_hares_lm_glance 
-```
-```{r}
-#Code for Pearson's r correlation 
-juvenile_hare_cor <- cor.test(juvenile_hares_date$weight, juvenile_hares_date$hindft)
-
-#get tidy version of the correlation for use later on with in line referncing 
-juvenile_hares_cor_tidy <- broom::tidy(juvenile_hare_cor)
-juvenile_hares_cor_tidy
-```
-
-```{r, include=FALSE}
-#Call model diagnostics to check for normality 
-plot(juvenile_hares_lm) # based on the qq plot, the residual distribution seems normal. The residuals, however, are not homoscedastic
-```
-
-slope is `r round(juvenile_hares_lm_tidy$estimate[2], 2)`
-intercept is `r round(juvenile_hares_lm_tidy$estimate[1], 2)`
-F-Statistc is `r (juvenile_hares_lm_glance$p.value[1])`
-r squared value is`r round(juvenile_hares_lm_glance$r.squared[1], 3)`
-pearson's r is `r round(juvenile_hares_cor_tidy$estimate,2)`
-
-We analyzed the relationship between juvenile hare weight (mass) and hind foot length across all juvenile hares observed during the study period. Although the relationship provides valuable insight to the ___, there is a necessity for further naysis that also includes sex of the juvenile hare and the site at which the hares were observed/trapped as variables, as these are likly to also have an impact on rabbit weight.
-
-There is a somewhat linear relationship that exists between 
-
-A simple regression model was found  to be : weight = `r round(juvenile_hares_lm_tidy$estimate[2], 2)` * (hind foot length) + `r round(juvenile_hares_lm_tidy$estimate[1], 2)`
