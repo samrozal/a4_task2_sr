@@ -23,7 +23,7 @@ hares <- read_csv(here("data", "bonanza_hares.csv"))
 ```
 
 # 1. Introduction
-This report provides an exploratory overview into differences in weights and sizes of juvenile snowshoe hares observed at the Bonanza Creek Long Term Ecological Research site (a portion of the US Long Term Ecological Research Network) between the years of 1998 and 2012. Specifically, we analyze the differences in juvenile snowshoe hare weights between sexes (male and female) and experimental sites (Bonanza Riparian, Bonanza Mature, and Bonanza Black Spruce). We also farther explore the relationship between juvenile hare weight and juvenile hare hind foot length by building a simple linear regression model to explore this relationship 
+This report provides an exploratory overview into differences in weights and sizes of juvenile snowshoe hares observed at the Bonanza Creek Long Term Ecological Research site (a portion of the US Long Term Ecological Research Network) between the years of 1998 and 2012. Specifically, we visualize the differences in juvenile snowshoe hare weights between sexes (male and female) and experimental sites (Bonanza Riparian, Bonanza Mature, and Bonanza Black Spruce). A deeper statistical analysis analyzing differences between the average weight of male and female juvenile snowshoe hares is presented. We also farther explore the relationship between juvenile hare weight and juvenile hare hind foot length by building a simple linear regression model to explore this relationship 
 
 # 2. Data and Methods
 Measurements pertaining to snowshoe hare sizes were collected by Dr. Knut Kielland, Dr. Staurt Chapin, Dr. Roger Russ, and their team between the years of 1998 and 2012 in the Bonanza Creek Experimental Forest in Alaska, USA. The data covers 5 sites (three of which are explored further in this report, as this report focuses on Juvenile snowshoe hares) where snowshoe hares were captured in traps, measured, and then released back into the the ecological reserve.Exploratory data visualization is first conducted in order to determine which variables warrant further investigation. Following this initial exploration, the difference between male and female weights is analysed using a Welch two-sample t-test (with a significance level of 0.05), the effect size of the model is found, and a linear regression model exploring weight and hind foot lengths is constructed.
@@ -80,7 +80,9 @@ ggplot(data=hares_summary, aes(x=year, y=count)) +
 
 ```
 
-Figure 1.*Count of Juvenile Hares Trapped by year.* Bar values represent the total number of juvenile hares that were trapped and subsequently observed each year. The number of observed hares greatly varied from year to year with a maximum number of hares trapped (126) occurring in 1999, and the minimum number of hares trapped (2) occurring in 2010. Throughout the entire study period, there was a mean value of `r hares_summary_statistics$mean` hares observed and a median value of `r hares_summary_statistics$median` hares observed. These values, however, do not take into account effort as we do not______
+Figure 1.*Count of Juvenile Hares Trapped by year.* Bar values represent the total number of juvenile hares that were trapped and subsequently observed each year. The number of observed hares greatly varied from year to year with a maximum number of hares trapped (126) occurring in 1999, and the minimum number of hares trapped (2) occurring in 2010. 
+
+Throughout the entire study period, the number of observed trapped hares is overall trending downward, though there are spikes in number of hares trapped approximately every 3 years, There was a mean value of `r hares_summary_statistics$mean` hares observed and a median value of `r hares_summary_statistics$median` hares observed. These values, however, do not take into account effort as the number of traps set and number of days trapping was not standardized on a year to year basis. In order to more acuraely asses year to year trends, it would be beneficial to divide by some value represnting size, such as area of land studied or number of traps set.  
 
 
 ## B.Juvenile hare weights 
@@ -219,7 +221,7 @@ ggplot(data=juvenile_hares_date, aes(x=hindft, y=weight))+
   geom_smooth(method="lm", linetype= "dashed")
 ```
 
-**Figure 3. Relationship between juvenile snowshoe hare weight and hind foot length** Individual observations are represented by points on the graph. The regression model is indicated by the dashed blue line which folows the equation: weight = `r round(juvenile_hares_lm_tidy$estimate[2], 2)`g mm ^-1^ * (hind foot length) + `r round(juvenile_hares_lm_tidy$estimate[1], 2)`g (p=`r round(juvenile_hares_lm_tidy$p.value[1], 2)`, R^2^ = `r round(juvenile_hares_lm_glance$r.squared[1], 3)` Pearson's *r* =`r round(juvenile_hares_cor_tidy$estimate,2)`) Data: Kielland et al. (2017)
+**Figure 3. Relationship between juvenile snowshoe hare weight and hind foot length** Individual observations are represented by points on the graph. The regression model is indicated by the dashed blue line which folows the equation: weight = `r round(juvenile_hares_lm_tidy$estimate[2], 2)`g mm ^-1^ * (hind foot length) + `r round(juvenile_hares_lm_tidy$estimate[1], 2)`g (p=`r round(juvenile_hares_lm_tidy$p.value[1], 2)`, R^2^ = `r round(juvenile_hares_lm_glance$r.squared[1], 3)`, Pearson's *r* =`r round(juvenile_hares_cor_tidy$estimate,2)`). Data: Kielland et al. (2017)
 
 There is a significant linear relationship in which juvenile hare weight can be predicted by juvenile hare hind foot length (p=`r round(juvenile_hares_lm_tidy$p.value[1], 2)`, R^2^ =`r round(juvenile_hares_lm_glance$r.squared[1], 3)`). The slope value of $\beta$ = `r round(juvenile_hares_lm_tidy$estimate[2], 2)` mm/g  indicates a predicted increase of `r round(juvenile_hares_lm_tidy$estimate[2], 2)` g in juvenile snowshoe hare weight for a 1 millimeter increase in hind foot length. There is a moderate, positive, significant correlation between juvenile snowshoe hare hind foot length and weight (Pearson's *r* = `r round(juvenile_hares_cor_tidy$estimate,2)`, p= `r (juvenile_hares_cor_tidy$p.value)`). Undisplayed diagnostic plots indicate that the distribution of the residual is hetroscedastic and non-normal, which indicates that although there is a significant linear relationship, the linear model may not be the best fit or important varaibles are missing from the current model.  
 
@@ -233,7 +235,9 @@ Key insights from our exploratory data analysis include:
  
 Future analysis surrounding this topic should include:
 
- - Constructing a multivariate linear regression model to account for potentially signifcant varaibles that were not included in the curent simple linear regression model. 
+ - Constructing a multivariate linear regression model to account for potentially significant variables (such as hare sex and observation site) that were not included in the current simple linear regression model. 
+ 
+ - Test if the relationship between weight and hind leg size follows non-linear models such as exponential or logistic models.
 
 # 5. Citation
 **Data citation**: Kielland, K., F.S. Chapin, R.W. Ruess, and Bonanza Creek LTER. 2017. Snowshoe hare physical data in Bonanza Creek Experimental Forest: 1999-Present ver 22. Environmental Data Initiative. (https://doi.org/10.6073/pasta/03dce4856d79b91557d8e6ce2cbcdc14)[https://doi.org/10.6073/pasta/03dce4856d79b91557d8e6ce2cbcdc14]
