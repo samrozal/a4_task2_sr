@@ -14,6 +14,7 @@ library(janitor)
 library(lubridate)
 library(effsize)
 library(kableExtra)
+library(ggbeeswarm)
 ```
 
 ```{r, include=FALSE}
@@ -24,35 +25,46 @@ hares <- read_csv(here("data", "bonanza_hares.csv"))
 # 1. Introduction 
 words and stuff 
 
-```{r, include=FALSE}
+```{r}
 hares_date <- hares %>% #create new df from  hares
-  mutate(date_new = mdy(date)) %>% #use lubridate to create new colum with code-friendly data
+  mutate(date_new = mdy(date)) %>% #use lubricate to create new colum with code-friendly data
   mutate(year = year(date_new)) #create year column using year() function 
 ```
 
-```{r, include=FALSE}
+```{r}
 juvenile_hares_date <-hares_date %>% #create new data frame from hares_date
-  filter(age == "j") #filter for just juvinile hares
+  filter(age == "j") %>% #filter for just juvinile hares
+  mutate(sex_full = case_when(
+    sex == "m" ~ "Male", 
+    sex == "f" ~ "Female", 
+    sex == "na" ~ "Not Applicable"
+  )) %>% 
+  mutate(site_full = case_when(
+    grid == "bonrip" ~ "Bonanza Riparian",
+    grid == "bonmat" ~ "Bonanza Mature", 
+    grid == "bonbs" ~ "Bonanza Black Spruce"
+  ))
 ```
 
 
-```{r, include=FALSE}
+```{r}
 hares_summary <- juvenile_hares_date %>%  #create new df from hares_date
   group_by(year) %>% # group by year
   summarize(count=n()) #get count totals 
-hares_summary
 ```
 
 ```{r}
 #Annual juvenile hare counts 
 ggplot(data=hares_summary, aes(x=year, y=count)) +
-  geom_col(fill="purple")+ #create graph using geom_col
+  geom_col(fill="purple", color= "blue") + #create graph using geom_col
   theme_classic() +
   scale_x_continuous(breaks= seq(from=1998, to=2012, by=1)) + #makes it so that all years are shown 
   labs(x= "Year",
-       y= "Juvenile Hare Count (n)", 
-       title = "Number of Juvenile Hares by Year") #add labels
-  
+       y= "Juvenile Hares Trapped Count (n)", 
+       title = "Number of Juvenile Hares Trapped by Year") + #add labels
+  theme(plot.background = element_rect(fill="azure2")) +
+  theme(panel.background = element_rect(fill="aliceblue"))
+
 ```
 
 Figure 1. ____add captions later___
@@ -61,8 +73,6 @@ Figure 1. ____add captions later___
 hares_summary_statistics <- hares_summary %>% 
   summarize(median= median(count),
             mean= mean(count))
-
-hares_summary_statistics
 ```
 
 # Visualize juvinile hare weights 
@@ -73,28 +83,26 @@ juvenile_hares_mean_weight <- juvenile_hares_date %>%
   summarize(mean_weight= mean(weight, na.rm=TRUE))
 ```
 
-```{r, include=FALSE}
-ggplot(data=juvenile_hares_mean_weight, aes(x=grid, y=mean_weight, fill=sex)) +
-  geom_col(position="dodge") 
-```
-
-```{r, include=FALSE}
-ggplot(data=juvenile_hares_date, aes(x=grid, y=weight))+
-  geom_point() +
-  facet_wrap(~sex)
-```
 
 ```{r}
 #Juvenile hare weights-final graph 
-ggplot(data=juvenile_hares_date, aes(x=sex, y=weight))+
-  geom_boxplot(aes(fill=sex)) +
-  facet_wrap(~grid)
+ggplot(data=juvenile_hares_date, aes(x=sex_full, y=weight))+
+  geom_beeswarm(aes(color=sex_full))+
+  geom_boxplot(fill=NA, width= 0.4, outlier.color="red") +
+  labs(fill= "Sex")+
+  theme(legend.background= element_rect(fill= "light blue"))+
+  theme(plot.background = element_rect(fill= "azure")) +
+  facet_wrap(~site_full) +
+  labs(x= "Site and Sex",
+       y= "Juvenile Hare Weight (g)",
+       title = "Juvenile Hare Weight by Sex and Site Trapped") 
 ```
+
 # Juvenile Weight comparison (male and female snowshoe Hares)
 
 ```{r}
 juvenile_hares_weight <- juvenile_hares_date %>% #create a new data frame
-  group_by(sex) %>%  #group by sex
+  group_by(sex_full) %>%  #group by sex
   summarize(mean_hare_weight= round(mean(weight,na.rm=TRUE), 2),
             sd_hare_weight= round(sd(weight, na.rm=TRUE), 2), 
             hare_sample_size= n())#generate summary statistics
@@ -106,8 +114,8 @@ juvenile_hares_weight# return df
 #Awesomely styled chart of juvenile weight comparison 
 kable(juvenile_hares_weight, col.names= c("Sex", 
                                           "Mean Hare Weight (g)",
-                                          "Dtandard Deviation(g)",
-                                          "Sample Size (n)")) %>% 
+                                          "Standard Deviation(g)",
+                                          "Sample Size (n)"), caption= "Table 1. Summary Statistics for Female, Male, and N/A Hares. Table includes mean, standard deviation, and sample size for Juvenile Hares of all sexes found at three diffent sites (Bonanza Riparian, Bonzana Mature, and Bonaza Black spruce) between the yeasr of 1998 and 2012") %>% 
   kable_styling()
 ```
 
@@ -118,7 +126,7 @@ juvenile_hares_weight$mean_hare_weight[2] - juvenile_hares_weight$mean_hare_weig
 
 ```
 
-```{r}
+```{r, include=FALSE}
 ggplot(data=juvenile_hares_date, aes(sample=weight)) +
   geom_qq()+
   geom_qq_line()
@@ -130,38 +138,74 @@ ggplot(data=juvenile_hares_date, aes(x=weight)) + #load data into ggplot
 ```
 
 ```{r}
+#Code for T-test:
 #create a vector with just female juvenile hares from the juvenile_hares_date df
 juvenile_hares_female <- juvenile_hares_date %>% 
-  filter(sex=="f", weight != "NA") %>%
+  filter(sex_full=="Female", weight != "NA") %>%
   pull(weight)
 
 #create a vector with just male juvenile hares from the juvenile_hares_date df
 juvenile_hares_male <- juvenile_hares_date %>% 
-  filter(sex=="m", weight !="NA") %>% 
+  filter(sex_full=="Male", weight !="NA") %>% 
   pull(weight)
   
 ```
 
+```{r}
+#plot histogram and qq plots to check assumptions
+hist(juvenile_hares_female) # pretty much normal, slight skew
+qqnorm(juvenile_hares_female) #beautiful! Pretty linear, qq plot basically a straight line 
+hist(juvenile_hares_male)# mostly normal distributed, slight skew bc there are a lot of hares in the 500 bin, which is a lot lower than it should be
+qqnorm(juvenile_hares_male)# mostly linear, but there is a slight s curve
+
+#Based on looking at this we can assume that the data is roughly normal, which means that we can in fact run a two sample t test. 
+```
+
 
 ```{r}
-juvenile_hares_t <- t.test(juvenile_hares_female,juvenile_hares_male) #run t.test
+# run the t.test:
+juvenile_hares_t <- t.test(juvenile_hares_female,juvenile_hares_male) 
 juvenile_hares_t #return t.test results
 ```
 
+
 ```{r}
-juvenile_hares_cohens <- cohen.d(juvenile_hares_male,juvenile_hares_female)
-juvenile_hares_cohens
+#pull model summary of the data frame so that I can call the ouputs for in line referencing 
+juvenile_hares_t_tidy <- broom::tidy(juvenile_hares_t)
+juvenile_hares_t_tidy
 ```
+p-value is: `r juvenile_hares_t_tidy$p.value[1]`
+
+
+```{r}
+#run a Cohen's effect test to get effect size 
+juvenile_hares_cohens <- cohen.d(juvenile_hares_male,juvenile_hares_female)
+
+#find the summary statistics in order to report it later in in line referencing 
+female_hares_mean <- mean(juvenile_hares_female)
+female_hares_sd <- sd(juvenile_hares_female)
+male_hares_mean <- mean(juvenile_hares_male)
+male_hares_sd <- sd(juvenile_hares_male)
+```
+
+Cohens d value is `r round(juvenile_hares_cohens$estimate, 2)`
+female hares mean `r round(female_hares_mean, 2)`
+female hares sd: `r round(female_hares_sd, 2)`
+male hares mean: `r round(male_hares_mean, 2)`
+male hares sd: `r round(male_hares_sd, 2)`
 
 # Relationship Between juvenile weight and hind foot length
 
 ```{r}
 ggplot(data=juvenile_hares_date, aes(x=hindft, y=weight))+
   geom_point() +
-  theme_classic() +
+  theme_minimal() +
   labs(x= "Hind Foot Length (mm)",
        y= "Weight (g)", 
-       title= "Juvenile Hare Hind Foot Length vs. Weight")
+       title= "Juvenile Hare Hind Foot Length vs. Weight") +
+  theme(plot.background = element_rect(fill="azure2")) +
+  theme(panel.background = element_rect(fill="aliceblue")) +
+  geom_smooth(method="lm", linetype= "dashed")
 ```
 
 ```{r}
@@ -170,12 +214,24 @@ juvenile_hares_lm <- lm(weight ~ hindft, data=juvenile_hares_date) #stored linea
 
 summary(juvenile_hares_lm) #return the complete overview
 
-juvenile_hares_lm_summary <- broom::tidy(juvenile_hares_lm)
-juvenile_hares_lm_summary
+#return tidy version of the model with the coefficient summary so that I can use it for in-line referencing later on.
+juvenile_hares_lm_tidy <- broom::tidy(juvenile_hares_lm)
+juvenile_hares_lm_tidy 
 
+```
+
+```{r}
+#return the model summary to use for in line referencing 
+juvenile_hares_lm_glance <- broom::glance(juvenile_hares_lm)
+juvenile_hares_lm_glance 
+```
+```{r}
+#Call model diagnostics to check for normality 
 plot(juvenile_hares_lm)
 ```
 
-slope is `r round(juvenile_hares_lm_summary$estimate[2], 2)`
-intercept is `r round(juvenile_hares_lm_summary$estimate[1], 2)`
-A simple regression model was found  to be : weight = `r round(juvenile_hares_lm_summary$estimate[2], 2)` * (hind foot length) + `r round(juvenile_hares_lm_summary$estimate[1], 2)`
+slope is `r round(juvenile_hares_lm_tidy$estimate[2], 2)`
+intercept is `r round(juvenile_hares_lm_tidy$estimate[1], 2)`
+F-Statistc is `r (juvenile_hares_lm_glance$p.value[1])`
+
+A simple regression model was found  to be : weight = `r round(juvenile_hares_lm_tidy$estimate[2], 2)` * (hind foot length) + `r round(juvenile_hares_lm_tidy$estimate[1], 2)`
