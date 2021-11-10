@@ -5,17 +5,18 @@ date: "11/6/2021"
 output: html_document
 ---
 
-```{r setup, include=TRUE, message=FALSE, warning=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-#attatch packages 
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE)
+#attach packages 
 library(tidyverse)
 library(here)
 library(janitor)
 library(lubridate)
 library(effsize)
+library(kableExtra)
 ```
 
-```{r}
+```{r, include=FALSE}
 #read in the data 
 hares <- read_csv(here("data", "bonanza_hares.csv"))
 ```
@@ -23,19 +24,19 @@ hares <- read_csv(here("data", "bonanza_hares.csv"))
 # 1. Introduction 
 words and stuff 
 
-```{r}
-hares_date <- hares %>% #create new df froma hares
+```{r, include=FALSE}
+hares_date <- hares %>% #create new df from  hares
   mutate(date_new = mdy(date)) %>% #use lubridate to create new colum with code-friendly data
   mutate(year = year(date_new)) #create year column using year() function 
 ```
 
-```{r}
+```{r, include=FALSE}
 juvenile_hares_date <-hares_date %>% #create new data frame from hares_date
   filter(age == "j") #filter for just juvinile hares
 ```
 
 
-```{r}
+```{r, include=FALSE}
 hares_summary <- juvenile_hares_date %>%  #create new df from hares_date
   group_by(year) %>% # group by year
   summarize(count=n()) #get count totals 
@@ -43,6 +44,7 @@ hares_summary
 ```
 
 ```{r}
+#Annual juvenile hare counts 
 ggplot(data=hares_summary, aes(x=year, y=count)) +
   geom_col(fill="purple")+ #create graph using geom_col
   theme_classic() +
@@ -52,6 +54,7 @@ ggplot(data=hares_summary, aes(x=year, y=count)) +
        title = "Number of Juvenile Hares by Year") #add labels
   
 ```
+
 Figure 1. ____add captions later___
 
 ```{r}
@@ -62,28 +65,27 @@ hares_summary_statistics <- hares_summary %>%
 hares_summary_statistics
 ```
 
-
 # Visualize juvinile hare weights 
 
 ```{r}
 juvenile_hares_mean_weight <- juvenile_hares_date %>% 
   group_by(sex,grid) %>% 
   summarize(mean_weight= mean(weight, na.rm=TRUE))
-juvenile_hares_select
 ```
 
-```{r}
+```{r, include=FALSE}
 ggplot(data=juvenile_hares_mean_weight, aes(x=grid, y=mean_weight, fill=sex)) +
   geom_col(position="dodge") 
 ```
 
-```{r}
+```{r, include=FALSE}
 ggplot(data=juvenile_hares_date, aes(x=grid, y=weight))+
   geom_point() +
   facet_wrap(~sex)
 ```
 
 ```{r}
+#Juvenile hare weights-final graph 
 ggplot(data=juvenile_hares_date, aes(x=sex, y=weight))+
   geom_boxplot(aes(fill=sex)) +
   facet_wrap(~grid)
@@ -100,12 +102,21 @@ juvenile_hares_weight# return df
 
 ```
 
+```{r} 
+#Awesomely styled chart of juvenile weight comparison 
+kable(juvenile_hares_weight, col.names= c("Sex", 
+                                          "Mean Hare Weight (g)",
+                                          "Dtandard Deviation(g)",
+                                          "Sample Size (n)")) %>% 
+  kable_styling()
+```
+
+
 ```{r}
 #find difference of means
 juvenile_hares_weight$mean_hare_weight[2] - juvenile_hares_weight$mean_hare_weight[1]
 
 ```
-
 
 ```{r}
 ggplot(data=juvenile_hares_date, aes(sample=weight)) +
@@ -138,10 +149,9 @@ juvenile_hares_t #return t.test results
 ```
 
 ```{r}
-juvenile_hares_cohens <- cohen.d(juvenile_hares_female,juvenile_hares_male)
+juvenile_hares_cohens <- cohen.d(juvenile_hares_male,juvenile_hares_female)
 juvenile_hares_cohens
 ```
-
 
 # Relationship Between juvenile weight and hind foot length
 
@@ -154,3 +164,18 @@ ggplot(data=juvenile_hares_date, aes(x=hindft, y=weight))+
        title= "Juvenile Hare Hind Foot Length vs. Weight")
 ```
 
+```{r}
+#perform an linear regression analysis
+juvenile_hares_lm <- lm(weight ~ hindft, data=juvenile_hares_date) #stored linear model as juvenile_hares_lm
+
+summary(juvenile_hares_lm) #return the complete overview
+
+juvenile_hares_lm_summary <- broom::tidy(juvenile_hares_lm)
+juvenile_hares_lm_summary
+
+plot(juvenile_hares_lm)
+```
+
+slope is `r round(juvenile_hares_lm_summary$estimate[2], 2)`
+intercept is `r round(juvenile_hares_lm_summary$estimate[1], 2)`
+A simple regression model was found  to be : weight = `r round(juvenile_hares_lm_summary$estimate[2], 2)` * (hind foot length) + `r round(juvenile_hares_lm_summary$estimate[1], 2)`
